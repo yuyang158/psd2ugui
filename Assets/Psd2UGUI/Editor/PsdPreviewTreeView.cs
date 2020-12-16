@@ -7,7 +7,8 @@ using UnityEngine;
 namespace Psd2UGUI.Editor {
 	public class PsdPreviewTreeView : TreeView {
 		private readonly PsdDocument m_document;
-		private List<PsdPreviewTreeItem> m_rows = new List<PsdPreviewTreeItem>();
+		private readonly List<PsdPreviewTreeItem> m_rows = new List<PsdPreviewTreeItem>();
+		private const float TOGGLE_WIDTH = 18;
 
 		private const float ROW_HEIGHT = 20f;
 		private static int m_globalId;
@@ -56,7 +57,13 @@ namespace Psd2UGUI.Editor {
 					GUI.Label(rect, args.row.ToString());
 				}
 				else {
-					// GUI.Label(rect, item.displayName);
+					var toggleRect = rect;
+					toggleRect.x += GetContentIndent(item);
+					toggleRect.width = TOGGLE_WIDTH;
+
+					var texture = PsdUtility.GetLayerTexture(item);
+					GUI.DrawTexture(toggleRect, texture);
+					rect.x += TOGGLE_WIDTH;
 					args.rowRect = rect;
 					base.RowGUI(args);
 				}
