@@ -14,6 +14,11 @@ namespace Psd2UGUI.Editor {
 			{LayerType.Complex, EditorGUIUtility.FindTexture( "console.erroricon" )}
 		};
 
+		private static readonly Dictionary<string, Texture> EXTEND_LAYER_TEXTURE = new Dictionary<string, Texture> {
+			{"Button", EditorGUIUtility.IconContent("Button Icon").image},
+			{"Toggle", EditorGUIUtility.IconContent("Toggle Icon").image}
+		};
+
 		public static Texture GetLayerTexture(PsdPreviewTreeItem item) {
 			return DEFAULT_LAYER_TEXTURE[item.LayerType];
 		}
