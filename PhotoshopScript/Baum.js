@@ -468,6 +468,7 @@
       var align, bounds, e, hash, hh, originalText, pos, scale, text, textCenterOffset, textColor, textSize, textType, vh, vx, vy, ww;
       document.activeLayer = layer;
       hash = {};
+
       if (layer.kind === LayerKind.TEXT) {
         text = layer.textItem;
         textSize = parseFloat(this.getTextSize());
@@ -529,23 +530,31 @@
           opacity: Math.round(layer.opacity * 10.0) / 10.0
         };
       } else {
-        hash = {
-          type: 'Image',
-          image: Util.layerToImageName(layer),
-          x: layer.bounds[0].value,
-          y: layer.bounds[1].value,
-          w: layer.bounds[2].value - layer.bounds[0].value,
-          h: layer.bounds[3].value - layer.bounds[1].value,
-          opacity: Math.round(layer.opacity * 10.0) / 10.0
-        };
-        if (opt['prefab']) {
-          hash['prefab'] = opt['prefab'];
+      	if (name.endsWith('Prefab')) {
+          hash = {
+            type: 'Prefab',
+            x: layer.bounds[0].value,
+            y: layer.bounds[1].value,
+            w: layer.bounds[2].value - layer.bounds[0].value,
+            h: layer.bounds[3].value - layer.bounds[1].value
+          };
         }
-        if (opt['background']) {
-          hash['background'] = true;
-        }
-        if (opt['slice']) {
-          hash['slice'] = opt['slice'];
+        else {
+          hash = {
+            type: 'Image',
+            image: Util.layerToImageName(layer),
+            x: layer.bounds[0].value,
+            y: layer.bounds[1].value,
+            w: layer.bounds[2].value - layer.bounds[0].value,
+            h: layer.bounds[3].value - layer.bounds[1].value,
+            opacity: Math.round(layer.opacity * 10.0) / 10.0
+          };
+          if (opt['background']) {
+            hash['background'] = true;
+          }
+          if (opt['slice']) {
+            hash['slice'] = opt['slice'];
+          }
         }
       }
       if (opt['pivot']) {
@@ -715,6 +724,11 @@
         for (k = 0, len1 = ref2.length; k < len1; k++) {
           layer = ref2[k];
           if (layer.visible) {
+            name = layer.name.split("@")[0];
+            if(name.endsWith('Prefab')) {
+              continue
+            }
+
             if (layer.typename === 'ArtLayer') {
               layer.visible = false;
               results.push(layer);
