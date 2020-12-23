@@ -89,7 +89,9 @@ namespace Baum2.Editor
             if (Directory.Exists(directoryFullPath))
             {
                 // Debug.LogFormat("[Baum2] Delete Exist Sprites: {0}", EditorUtil.ToUnityPath(directoryFullPath));
-                foreach (var filePath in Directory.GetFiles(directoryFullPath, "*.png", SearchOption.TopDirectoryOnly)) File.Delete(filePath);
+                foreach (var filePath in Directory.GetFiles(directoryFullPath, "*.png", SearchOption.TopDirectoryOnly))
+                    File.Delete(filePath);
+                AssetDatabase.Refresh();
             }
             else
             {

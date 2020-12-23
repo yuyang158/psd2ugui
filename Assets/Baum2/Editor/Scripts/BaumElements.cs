@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.UI;
@@ -21,6 +21,7 @@ namespace Baum2.Editor
             { "Slider", (d, p) => new SliderElement(d, p) },
             { "Scrollbar", (d, p) => new ScrollbarElement(d, p) },
             { "Toggle", (d, p) => new ToggleElement(d, p) },
+            { "Prefab", (d, p) => new PrefabElement(d, p) }
         };
 
         public static Element Generate(Dictionary<string, object> json, Element parent)
@@ -33,7 +34,7 @@ namespace Baum2.Editor
 
     public abstract class Element
     {
-        public string name;
+        public readonly string name;
         protected string pivot;
         protected bool stretchX;
         protected bool stretchY;
@@ -47,8 +48,8 @@ namespace Baum2.Editor
             this.parent = parent;
             name = json.Get("name");
             if (json.ContainsKey("pivot")) pivot = json.Get("pivot");
-            if (json.ContainsKey("stretchxy") || json.ContainsKey("stretchx") || (parent != null ? parent.stretchX : false)) stretchX = true;
-            if (json.ContainsKey("stretchxy") || json.ContainsKey("stretchy") || (parent != null ? parent.stretchY : false)) stretchY = true;
+            if (json.ContainsKey("stretchxy") || json.ContainsKey("stretchx") || (parent?.stretchX ?? false)) stretchX = true;
+            if (json.ContainsKey("stretchxy") || json.ContainsKey("stretchy") || (parent?.stretchY ?? false)) stretchY = true;
         }
 
         protected GameObject CreateUIGameObject(Renderer renderer)
@@ -353,9 +354,9 @@ namespace Baum2.Editor
             rect.anchoredPosition = renderer.CalcPosition(canvasPosition, sizeDelta);
             rect.sizeDelta = sizeDelta;
 
-            var raw = go.AddComponent<RawData>();
-            raw.Info["font_size"] = fontSize;
-            raw.Info["align"] = align;
+            //var raw = go.AddComponent<RawData>();
+            //raw.Info["font_size"] = fontSize;
+            //raw.Info["align"] = align;
 
             var text = go.AddComponent<Text>();
             text.text = message;
@@ -487,18 +488,18 @@ namespace Baum2.Editor
             var scrollRect = go.AddComponent<ScrollRect>();
             scrollRect.content = content.GetComponent<RectTransform>();
 
-            var layoutGroup = content.AddComponent<ListLayoutGroup>();
+            // var layoutGroup = content.AddComponent<ListLayoutGroup>();
             if (scroll == "vertical")
             {
                 scrollRect.vertical = true;
                 scrollRect.horizontal = false;
-                layoutGroup.Scroll = Scroll.Vertical;
+                // layoutGroup.Scroll = Scroll.Vertical;
             }
             else if (scroll == "horizontal")
             {
                 scrollRect.vertical = false;
                 scrollRect.horizontal = true;
-                layoutGroup.Scroll = Scroll.Horizontal;
+                //layoutGroup.Scroll = Scroll.Horizontal;
             }
         }
 
@@ -561,9 +562,9 @@ namespace Baum2.Editor
 
         private void SetupList(GameObject go, List<GameObject> itemSources, GameObject content)
         {
-            var list = go.AddComponent<List>();
-            list.ItemSources = itemSources;
-            list.LayoutGroup = content.GetComponent<ListLayoutGroup>();
+            // var list = go.AddComponent<List>();
+            // list.ItemSources = itemSources;
+            // list.LayoutGroup = content.GetComponent<ListLayoutGroup>();
         }
     }
 
@@ -675,6 +676,27 @@ namespace Baum2.Editor
             SetStretch(go, renderer);
             SetPivot(go, renderer);
             return go;
+        }
+    }
+    
+    public sealed class PrefabElement : GroupElement
+    {
+        public PrefabElement(Dictionary<string, object> json, Element parent) : base(json, parent)
+        {
+        }
+
+        public override GameObject Render(Renderer renderer) {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/UI/{name}.prefab");
+            if( !prefab ) {
+                prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/Resources/UI/{name}.prefab");
+            }
+
+            if( !prefab ) {
+                Debug.LogError($"无法在Assets/UI、Assets/Resources/UI目录中找到{name}.prefab文件");
+                return null;
+            }
+
+            return PrefabUtility.InstantiatePrefab(prefab) as GameObject;
         }
     }
 

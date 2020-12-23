@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEditor;
@@ -31,7 +32,10 @@ namespace Baum2.Editor
                 EditorApplication.isPlaying = false;
             }
 
-            var text = AssetDatabase.LoadAssetAtPath<TextAsset>(assetPath).text;
+            string text;
+            using( var reader = new StreamReader(assetPath, Encoding.UTF8) ) {
+                text = reader.ReadToEnd();
+            }
             var json = MiniJSON.Json.Deserialize(text) as Dictionary<string, object>;
             var info = json.GetDic("info");
             Validation(info);
@@ -45,12 +49,11 @@ namespace Baum2.Editor
             var root = rootElement.Render(renderer);
             root.AddComponent<Canvas>();
             root.AddComponent<GraphicRaycaster>();
-            root.AddComponent<UIRoot>();
 
             Postprocess(root);
 
-            var cache = root.AddComponent<Cache>();
-            cache.CreateCache(root.transform);
+            //var cache = root.AddComponent<Cache>();
+            //cache.CreateCache(root.transform);
 
             return root;
         }

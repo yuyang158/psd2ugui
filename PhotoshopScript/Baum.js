@@ -352,7 +352,7 @@
       var json, toJson;
       toJson = new PsdToJson();
       json = toJson.run(targetDocument, this.documentName);
-      return Util.saveText(this.saveFolder + "/" + this.documentName + ".layout.txt", json);
+      return Util.saveText(this.saveFolder + "/" + this.documentName + ".layout", json);
     };
 
     Baum.prototype.psdToImage = function(targetDocument) {
@@ -429,7 +429,6 @@
           continue;
         }
         hash = null;
-        alert(layer.kind)
 
         name = layer.name.split("@")[0];
         opt = Util.parseOption(layer.name.split("@")[1]);
